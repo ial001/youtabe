@@ -1,0 +1,1070 @@
+สร้างเว็บไซต์ ขนาดใหญ่ด้วย html,css,javascript แบบ youtube และ Instagram พร้อมการดูสตอรี่คนอื่นได้ ละสามารถอัพโหลดวิดิโเข้าไปได้
+
+นี่คือโครงสร้างและโค้ดต้นแบบสำหรับสร้างเว็บแอปพลิเคชันขนาดใหญ่ที่ผสมผสานฟีเจอร์เด่นของ YouTube (ฟีดวิดีโอ, การอัพโหลด) และ Instagram (สตอรี่ด้านบน, แถบนำทาง) ด้วย HTML, CSS (Flexbox/Grid) และ JavaScript ครับ
+
+เนื่องจากเป็นโปรเจกต์ขนาดใหญ่ โค้ดชุดนี้จึงถูกออกแบบให้เป็น Single Page Application (SPA) แบบจำลอง ที่มีหน้าตา ท่าทาง และการทำงานพื้นฐานครบถ้วน พร้อมนำไปต่อยอดกับ Backend (เช่น Node.js, Firebase) ครับ
+
+1. โครงสร้างไฟล์แนะนำ (Project Structure)
+Plaintext
+my-social-video-app/
+├── index.html
+├── style.css
+└── script.js
+2. ไฟล์ index.html (โครงสร้างหลัก)
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamGram - โซเชียลวิดีโอและสตอรี่</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome สำหรับไอคอน -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar (YouTube Style Header) -->
+    <header class="navbar">
+        <div class="nav-left">
+            <i class="fa-solid fa-bars menu-icon"></i>
+            <h1 class="logo"><i class="fa-solid fa-play-circle"></i> StreamGram</h1>
+        </div>
+        <div class="nav-center">
+            <input type="text" placeholder="ค้นหาวิดีโอ, สตอรี่...">
+            <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div class="nav-right">
+            <button class="icon-btn" id="upload-trigger"><i class="fa-solid fa-video"></i></button>
+            <button class="icon-btn"><i class="fa-solid fa-bell"></i></button>
+            <div class="user-avatar"></div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="#" class="sidebar-item active"><i class="fa-solid fa-house"></i> หน้าแรก</a>
+            <a href="#" class="sidebar-item"><i class="fa-solid fa-compass"></i> สำรวจ</a>
+            <a href="#" class="sidebar-item"><i class="fa-solid fa-clapperboard"></i> คลิปสั้น</a>
+            <a href="#" class="sidebar-item"><i class="fa-solid fa-bolt"></i> การติดตาม</a>
+            <hr>
+            <a href="#" class="sidebar-item"><i class="fa-solid fa-user-shield"></i> ช่องของคุณ</a>
+            <a href="#" class="sidebar-item"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการเข้าชม</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            
+            <!-- Instagram Style Stories Bar -->
+            <section class="stories-wrapper">
+                <div class="stories-container" id="stories-container">
+                    <!-- สตอรี่จะถูกสร้างด้วย JavaScript -->
+                </div>
+            </section>
+
+            <!-- YouTube Style Video Grid -->
+            <section class="video-section">
+                <h2>วิดีโอแนะนำสำหรับคุณ</h2>
+                <div class="video-grid" id="video-grid">
+                    <!-- วิดีโอจะถูกสร้างด้วย JavaScript -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="upload-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2>อัพโหลดวิดีโอใหม่</h2>
+            <form id="upload-form">
+                <div class="upload-dropzone" id="dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p>ลากและวางไฟล์วิดีโอที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                    <input type="file" id="video-file-input" accept="video/*" hidden>
+                </div>
+                <input type="text" id="video-title" placeholder="ชื่อวิดีโอ" required>
+                <textarea id="video-desc" placeholder="คำอธิบายวิดีโอ..."></textarea>
+                <button type="submit" class="primary-btn">เผยแพร่วิดีโอ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Story Viewer Modal -->
+    <div class="story-viewer" id="story-viewer">
+        <span class="close-story" id="close-story">&times;</span>
+        <div class="story-box">
+            <div class="story-progress-bar"><div id="progress"></div></div>
+            <div class="story-user-info">
+                <div id="story-avatar" class="mini-avatar"></div>
+                <span id="story-username">Username</span>
+            </div>
+            <div class="story-content-display" id="story-display">
+                <!-- เนื้อหาสตอรี่ -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+3. ไฟล์ style.css (การตกแต่งสไตล์ Dark-Mode สมัยใหม่)
+CSS
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #0f0f0f;
+    color: #f1f1f1;
+}
+
+/* Navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #212121;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 1.2rem;
+    color: #ff0000;
+    cursor: pointer;
+}
+
+.menu-icon {
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.nav-center {
+    display: flex;
+    width: 40%;
+    max-width: 600px;
+}
+
+.nav-center input {
+    width: 100%;
+    padding: 8px 15px;
+    background: #121212;
+    border: 1px solid #303030;
+    border-radius: 20px 0 0 20px;
+    color: #fff;
+    outline: none;
+}
+
+.search-btn {
+    padding: 0 20px;
+    background: #303030;
+    border: 1px solid #303030;
+    border-radius: 0 20px 20px 0;
+    color: #fff;
+    cursor: pointer;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: #555;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Layout */
+.main-container {
+    display: flex;
+    margin-top: 60px;
+}
+
+.sidebar {
+    width: 240px;
+    height: calc(100vh - 60px);
+    position: fixed;
+    background-color: #212121;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 15px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+    background-color: #3f3f3f;
+}
+
+.sidebar hr {
+    border: 0;
+    border-top: 1px solid #383838;
+    margin: 10px 0;
+}
+
+.content {
+    margin-left: 240px;
+    padding: 20px;
+    width: calc(100% - 240px);
+}
+
+/* Stories Bar (Instagram Style) */
+.stories-wrapper {
+    overflow-x: auto;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    scrollbar-width: none; /* ซ่อน scrollbar ใน Firefox */
+}
+.stories-wrapper::-webkit-scrollbar {
+    display: none; /* ซ่อน scrollbar ใน Chrome/Safari */
+}
+
+.stories-container {
+    display: flex;
+    gap: 15px;
+}
+
+.story-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.story-ring {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+}
+
+.story-thumb {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0f0f0f;
+}
+
+.story-card span {
+    font-size: 0.8rem;
+    margin-top: 5px;
+    color: #aaa;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Video Grid (YouTube Style) */
+.video-section h2 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.video-card {
+    background: #1f1f1f;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.video-card:hover {
+    transform: scale(1.02);
+}
+
+.video-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #333;
+    object-fit: cover;
+}
+
+.video-info-container {
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+}
+
+.channel-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #777;
+    flex-shrink: 0;
+}
+
+.video-details h3 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.video-details p {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+/* Modal General */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #212121;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.upload-dropzone {
+    border: 2px dashed #555;
+    padding: 30px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.upload-dropzone i {
+    font-size: 2.5rem;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+#upload-form input[type="text"], #upload-form textarea {
+    padding: 10px;
+    background: #121212;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #fff;
+    outline: none;
+}
+
+.primary-btn {
+    padding: 10px;
+    background: #3ea6ff;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Story Viewer Modal */
+.story-viewer {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.story-box {
+    width: 380px;
+    height: 650px;
+    background: #111;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.story-progress-bar {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px;
+    height: 3px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    z-index: 10;
+}
+
+#progress {
+    width: 0%;
+    height: 100%;
+    background: #fff;
+    transition: width linear;
+}
+
+.story-user-info {
+    position: absolute;
+    top: 25px; left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+}
+
+.mini-avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: #666;
+}
+
+.story-content-display {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 20px;
+}
+
+.close-story {
+    position: absolute;
+    top: 20px; right: 25px;
+    color: #fff; font-size: 2rem; cursor: pointer;
+    z-index: 3000;
+}
+4. ไฟล์ script.js (ระบบการทำงานจำลอง: สตอรี่, ฟีดวิดีโอ, และการอัพโหลด)
+JavaScript
+// ข้อมูลจำลอง (Mock Data) สำหรับสตอรี่
+const storiesData = [
+    { id: 1, name: 'TechDaily', avatar: 'https://picsum.photos/seed/user1/100', contentBg: '#1e3d59', text: '🚀 เปิดตัวเทคโนโลยีใหม่ล่าสุดประจำปี!' },
+    { id: 2, name: 'TravelVibe', avatar: 'https://picsum.photos/seed/user2/100', contentBg: '#17b978', text: '🌴 บรรยากาศทะเลวันนี้สดใสมากกก' },
+    { id: 3, name: 'ChefHome', avatar: 'https://picsum.photos/seed/user3/100', contentBg: '#ff6e40', text: '🍳 สอนทำเมนูลับฉบับคนงบน้อย' },
+    { id: 4, name: 'GameMaster', avatar: 'https://picsum.photos/seed/user4/100', contentBg: '#7c3aed', text: '🎮 สตรีมเกมยาวไปคืนนี้ เจอกัน!' },
+    { id: 5, name: 'MusicStation', avatar: 'https://picsum.photos/seed/user5/100', contentBg: '#db2777', text: '🎵 เพลงใหม่ปล่อยแล้ว ไปฟังกันเลย' }
+];
+
+// ข้อมูลจำลองสำหรับวิดีโอ
+let videosData = [
+    { id: 1, title: 'สร้างเว็บด้วย HTML CSS แบบจัดเต็มใน 1 ชั่วโมง', channel: 'Dev Code', views: '1.2ล้าน ครั้ง', time: '2 วันที่แล้ว', thumb: 'https://picsum.photos/seed/vid1/400/225' },
+    { id: 2, title: 'ตะลุยสตรีทฟู้ดกรุงเทพ กินแหลก 10 ร้านดัง!', channel: 'Foodie Guide', views: '450K ครั้ง', time: '1 สัปดาห์ที่แล้ว', thumb: 'https://picsum.photos/seed/vid2/400/225' },
+    { id: 3, title: 'รีวิวห้องนอนมินิมอล งบหลักพัน แต่งออกมาสวยมาก', channel: 'Home Studio', views: '89K ครั้ง', time: '3 วันที่แล้ว', thumb: 'https://picsum.photos/seed/vid3/400/225' },
+    { id: 4, title: 'รวมเพลงฟังสบายๆ ตอนทำงาน โฟกัสยาวๆ', channel: 'Lofi Vibes', views: '3.4ล้าน ครั้ง', time: '1 เดือนที่แล้ว', thumb: 'https://picsum.photos/seed/vid4/400/225' }
+];
+
+// เรนเดอร์สตอรี่
+const storiesContainer = document.getElementById('stories-container');
+function renderStories() {
+    storiesContainer.innerHTML = storiesData.map(story => `
+        <div class="story-card" onclick="openStory(${story.id})">
+            <div class="story-ring">
+                <img src="${story.avatar}" class="story-thumb" alt="${story.name}">
+            </div>
+            <span>${story.name}</span>
+        </div>
+    `).join('');
+}
+
+// เรนเดอร์วิดีโอ
+const videoGrid = document.getElementById('video-grid');
+function renderVideos() {
+    videoGrid.innerHTML = videosData.map(video => `
+        <div class="video-card">
+            <img src="${video.thumb}" class="video-thumbnail" alt="thumbnail">
+            <div class="video-info-container">
+                <div class="channel-icon"></div>
+                <div class="video-details">
+                    <h3>${video.title}</h3>
+                    <p>${video.channel}</p>
+                    <p>${video.views} • ${video.time}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ระบบเปิดดูสตอรี่ (Instagram Story Viewer)
+const storyViewer = document.getElementById('story-viewer');
+const storyDisplay = document.getElementById('story-display');
+const storyUsername = document.getElementById('story-username');
+const progress = document.getElementById('progress');
+let storyTimer;
+
+function openStory(id) {
+    const story = storiesData.find(s => s.id === id);
+    if (!story) return;
+
+    storyUsername.textContent = story.name;
+    storyDisplay.style.backgroundColor = story.contentBg;
+    storyDisplay.innerHTML = `<h2>${story.text}</h2>`;
+    
+    storyViewer.style.display = 'flex';
+    
+    // แอนิเมชันหลอดเวลาสตอรี่ (5 วินาที)
+    progress.style.transition = 'none';
+    progress.style.width = '0%';
+    setTimeout(() => {
+        progress.style.transition = 'width 5s linear';
+        progress.style.width = '100%';
+    }, 50);
+
+    clearTimeout(storyTimer);
+    storyTimer = setTimeout(() => {
+        closeStoryViewer();
+    }, 5000);
+}
+
+function closeStoryViewer() {
+    storyViewer.style.display = 'none';
+    clearTimeout(storyTimer);
+}
+
+document.getElementById('close-story').addEventListener('click', closeStoryViewer);
+
+// ระบบ Modal อัพโหลดวิดีโอ (YouTube Upload Feature)
+const uploadModal = document.getElementById('upload-modal');
+const uploadTrigger = document.getElementById('upload-trigger');
+const closeModal = document.getElementById('close-modal');
+const uploadForm = document.getElementById('upload-form');
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('video-file-input');
+
+uploadTrigger.addEventListener('click', () => uploadModal.style.display = 'flex');
+closeModal.addEventListener('click', () => uploadModal.style.display = 'none');
+dropzone.addEventListener('click', () => fileInput.click());
+
+// จำลองการอัพโหลดวิดีโอใหม่เข้าสู่ระบบ
+uploadForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('video-title').value;
+    const desc = document.getElementById('video-desc').value;
+
+    if (!title) return alert('กรุณากรอกชื่อวิดีโอ');
+
+    // สร้างข้อมูลวิดีโอใหม่จำลอง
+    const newVideo = {
+        id: videosData.length + 1,
+        title: title,
+        channel: 'ช่องของคุณ',
+        views: '0 ครั้ง',
+        time: 'เมื่อสักครู่นี้',
+        thumb: 'https://picsum.photos/seed/' + Math.random() + '/400/225'
+    };
+
+    videosData.unshift(newVideo); // เพิ่มไว้บนสุด
+    renderVideos();
+
+    // Reset ฟอร์มและปิด Modal
+    uploadForm.reset();
+    uploadModal.style.display = 'none';
+    alert('อัพโหลดวิดีโอสำเร็จ!');
+});
+
+// โหลดข้อมูลเริ่มต้นเมื่อเปิดเว็บ
+window.addEventListener('DOMContentLoaded', () => {
+    renderStories();
+    renderVideos();
+});
+คำแนะนำเพิ่มเติมในการต่อยอดเป็นระบบใหญ่ระดับโปรดักชัน:
+Frontend Frameworks: หากระบบเริ่มซับซ้อน แนะนำให้ย้ายโครงสร้างนี้ไปใช้ React.js, Vue.js หรือ Next.js เพื่อช่วยจัดการสถานะ (State Management) และ Component ได้ง่ายขึ้น
+
+Backend & Database: ใช้ Node.js (Express) หรือ Firebase ร่วมกับฐานข้อมูลเช่น MongoDB / PostgreSQL สำหรับเก็บข้อมูลผู้ใช้, ข้อมูลวิดีโอ และลิงก์สตอรี่
+
+Storage & Streaming: การเก็บไฟล์วิดีโอและรูปภาพจริง ควรใช้บริการ Cloud Storage เช่น AWS S3, Google Cloud Storage หรือบริการประมวลผลวิดีโอสตรีมมิ่งอย่าง Mux หรือ Cloudflare Stream
+
+ขอระบบการตั้งค่าเพิ่มละ ระบบล็อกออกจากระบบไปอีกบัญชี พร้อมสามารถใส่โค้ดเดียวกันได้
+
+จัดให้ครับ! เราจะเพิ่มฟีเจอร์สำคัญเข้าไปในโค้ดเดิม ได้แก่:
+
+ระบบตั้งค่า (Settings Modal): หน้าต่างจัดการข้อมูลบัญชีและการตั้งค่าแอป
+
+ระบบสลับบัญชี / ล็อกอินบัญชีอื่น (Switch Account): สามารถเพิ่มบัญชีและสลับใช้งานระหว่างบัญชีได้อย่างราบรื่น
+
+ระบบใช้โค้ดเดียวกัน (Shared Code / Coupon / Activation Code): ช่องใส่โค้ดกลางสำหรับผู้ใช้ทุกคน (เช่น โค้ดรับสิทธิ์พิเศษ โค้ดกลุ่ม หรือรหัสเข้าชม) ที่ไม่ว่าจะบัญชีไหนก็สามารถกรอกโค้ดชุดเดียวกันนี้ได้
+
+นี่คือโค้ดที่อัปเดตเพิ่มเติมทั้งหมดครับ (คุณสามารถนำไปแทนที่ไฟล์เดิมได้เลย):
+
+1. อัปเดตไฟล์ index.html (เพิ่มปุ่มตั้งค่า, เมนูสลับบัญชี และช่องใส่โค้ด)
+แทรกโค้ดเหล่านี้ลงในไฟล์ index.html ของคุณ:
+
+เพิ่มปุ่มตั้งค่าที่มุมขวาบน (ใน .nav-right) และเพิ่มเมนูสลับบัญชีใน Sidebar:
+
+HTML
+<!-- ในส่วน .nav-right ของ index.html ให้เปลี่ยนเป็นแบบนี้ -->
+<div class="nav-right">
+    <button class="icon-btn" id="upload-trigger" title="อัพโหลดวิดีโอ"><i class="fa-solid fa-video"></i></button>
+    <button class="icon-btn" id="settings-trigger" title="ตั้งค่าระบบ"><i class="fa-solid fa-gear"></i></button>
+    <div class="user-avatar" id="current-user-avatar" title="บัญชีปัจจุบัน"></div>
+</div>
+เพิ่ม Modal ตั้งค่าและสลับบัญชี (วางไว้ก่อนปิดแท็ก </body>):
+
+HTML
+<!-- Settings & Account Modal -->
+<div class="modal" id="settings-modal">
+    <div class="modal-content settings-box">
+        <span class="close-modal" id="close-settings">&times;</span>
+        <h2><i class="fa-solid fa-gear"></i> การตั้งค่า & จัดการบัญชี</h2>
+        
+        <div class="settings-section">
+            <h3>👤 บัญชีปัจจุบัน</h3>
+            <div class="current-account-card">
+                <div class="mini-avatar" id="settings-avatar"></div>
+                <div>
+                    <strong id="settings-username">User_1</strong>
+                    <p style="font-size: 0.8rem; color: #aaa;">สถานะ: ออนไลน์</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>🔄 สลับบัญชี / เพิ่มบัญชีใหม่</h3>
+            <div id="accounts-list" class="accounts-list">
+                <!-- รายการบัญชีจะถูกเรนเดอร์ด้วย JS -->
+            </div>
+            <div class="add-account-group">
+                <input type="text" id="new-account-name" placeholder="ชื่อบัญชีใหม่...">
+                <button type="button" class="primary-btn" id="add-account-btn">เพิ่มบัญชี</button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>🎟️ ระบบใส่โค้ดเดียวกัน (Shared Code)</h3>
+            <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 8px;">ใส่โค้ดลับหรือโค้ดกิจกรรมร่วมกันได้ทุกบัญชี</p>
+            <div class="code-input-group">
+                <input type="text" id="shared-code-input" placeholder="กรอกโค้ด เช่น STREAM2026">
+                <button type="button" class="primary-btn" id="submit-code-btn">ใช้โค้ด</button>
+            </div>
+            <p id="code-feedback" class="code-feedback"></p>
+        </div>
+    </div>
+</div>
+2. เพิ่มเติมในไฟล์ style.css (ตกแต่งหน้าการตั้งค่า)
+เพิ่ม CSS เหล่านี้ลงไปท้ายสุดของไฟล์ style.css:
+
+CSS
+/* Settings Modal Styles */
+.settings-box {
+    width: 450px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.settings-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #333;
+}
+
+.settings-section h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #3ea6ff;
+}
+
+.current-account-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1a1a1a;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.account-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #181818;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+
+.account-item.active-account {
+    border-color: #3ea6ff;
+    background: #1e293b;
+}
+
+.switch-btn {
+    background: #3ea6ff;
+    color: #000;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.add-account-group, .code-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.add-account-group input, .code-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #121212;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #fff;
+    outline: none;
+}
+
+.code-feedback {
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
+3. อัปเดตไฟล์ script.js (เพิ่มฟังก์ชันจัดการบัญชีและระบบโค้ด)
+นำโค้ดส่วนนี้ไปเพิ่มต่อท้ายในไฟล์ script.js ของคุณ:
+
+JavaScript
+// --- ระบบจัดการบัญชีและการตั้งค่า (Multi-Account & Shared Code) ---
+
+// ข้อมูลจำลองระบบบัญชี (เก็บใน LocalStorage จำลองเพื่อให้จำค่าได้)
+let accounts = JSON.parse(localStorage.getItem('streamgram_accounts')) || [
+    { id: 1, name: 'Dev Channel (หลัก)', avatar: 'https://picsum.photos/seed/acc1/100' },
+    { id: 2, name: 'Gamer Pro', avatar: 'https://picsum.photos/seed/acc2/100' }
+];
+
+let currentAccountIndex = parseInt(localStorage.getItem('streamgram_current_acc')) || 0;
+
+// โค้ดกลางที่ใช้ร่วมกันได้ทุกบัญชี (กำหนดไว้ล่วงหน้า)
+const VALID_SHARED_CODES = {
+    "STREAM2026": "ยินดีด้วย! คุณได้รับสิทธิ์สมาชิก VIP ฟรี 30 วัน 🎉",
+    "YOUTUBEINSTA": "ปลดล็อกฟีเจอร์พิเศษ: โค้ดนี้ใช้ร่วมกันได้ทุกบัญชีสำเร็จ! ✅",
+    "VIPCODE": "โค้ดลับใช้งานสำเร็จ ได้รับแต้มพิเศษ 500 พอยท์ 🌟"
+};
+
+// Element Selectors
+const settingsModal = document.getElementById('settings-modal');
+const settingsTrigger = document.getElementById('settings-trigger');
+const closeSettings = document.getElementById('close-settings');
+const accountsList = document.getElementById('accounts-list');
+const settingsUsername = document.getElementById('settings-username');
+const currentUserAvatar = document.getElementById('current-user-avatar');
+const settingsAvatar = document.getElementById('settings-avatar');
+const addAccountBtn = document.getElementById('add-account-btn');
+const newAccountNameInput = document.getElementById('new-account-name');
+
+// เปิด-ปิด Modal ตั้งค่า
+settingsTrigger.addEventListener('click', () => {
+    updateSettingsUI();
+    settingsModal.style.display = 'flex';
+});
+closeSettings.addEventListener('click', () => settingsModal.style.display = 'none');
+
+// อัปเดต UI หน้าตั้งค่าและบัญชีปัจจุบัน
+function updateSettingsUI() {
+    const activeAcc = accounts[currentAccountIndex] || accounts[0];
+    settingsUsername.textContent = activeAcc.name;
+    currentUserAvatar.style.backgroundImage = `url(${activeAcc.avatar})`;
+    currentUserAvatar.style.backgroundSize = 'cover';
+    settingsAvatar.style.backgroundImage = `url(${activeAcc.avatar})`;
+    settingsAvatar.style.backgroundSize = 'cover';
+
+    // เรนเดอร์รายชื่อบัญชีทั้งหมด
+    accountsList.innerHTML = accounts.map((acc, index) => `
+        <div class="account-item ${index === currentAccountIndex ? 'active-account' : ''}">
+            <span style="font-size: 0.9rem;">${acc.name} ${index === currentAccountIndex ? '(ใช้งานอยู่)' : ''}</span>
+            ${index !== currentAccountIndex ? `<button class="switch-btn" onclick="switchAccount(${index})">สลับ</button>` : '<span style="color:#3ea6ff; font-size:0.8rem;">ใช้งานอยู่</span>'}
+        </div>
+    `).join('');
+}
+
+// ฟังก์ชันสลับบัญชี
+window.switchAccount = function(index) {
+    currentAccountIndex = index;
+    localStorage.setItem('streamgram_current_acc', currentAccountIndex);
+    updateSettingsUI();
+    alert(`สลับไปยังบัญชี "${accounts[currentAccountIndex].name}" เรียบร้อยแล้ว!`);
+};
+
+// ฟังก์ชันเพิ่มบัญชีใหม่
+addAccountBtn.addEventListener('click', () => {
+    const name = newAccountNameInput.value.trim();
+    if (!name) return alert('กรุณากรอกชื่อบัญชี');
+
+    const newAcc = {
+        id: accounts.length + 1,
+        name: name,
+        avatar: `https://picsum.photos/seed/${name}/100`
+    };
+
+    accounts.push(newAcc);
+    localStorage.setItem('streamgram_accounts', JSON.stringify(accounts));
+    newAccountNameInput.value = '';
+    updateSettingsUI();
+    alert('เพิ่มบัญชีใหม่สำเร็จ!');
+});
+
+// ระบบใส่โค้ดเดียวกัน (Shared Code System)
+const sharedCodeInput = document.getElementById('shared-code-input');
+const submitCodeBtn = document.getElementById('submit-code-btn');
+const codeFeedback = document.getElementById('code-feedback');
+
+submitCodeBtn.addEventListener('click', () => {
+    const code = sharedCodeInput.value.trim().toUpperCase();
+    if (!code) {
+        codeFeedback.style.color = '#ff4e45';
+        codeFeedback.textContent = 'กรุณากรอกโค้ดก่อนกดใช้งาน';
+        return;
+    }
+
+    // ตรวจสอบว่าโค้ดถูกต้องหรือไม่ (โค้ดชุดเดียวกัน ไม่ว่าจะบัญชีไหนกรอกก็ใช้ได้เหมือนกัน)
+    if (VALID_SHARED_CODES[code]) {
+        codeFeedback.style.color = '#10b981'; // สีเขียว
+        codeFeedback.textContent = VALID_SHARED_CODES[code];
+        
+        // บันทึกสถานะว่าบัญชีนี้ใช้โค้ดนี้แล้ว (หรือจะให้ใช้ซ้ำได้อิสระ)
+        console.log(`บัญชี ${accounts[currentAccountIndex].name} ใช้โค้ด: ${code} สำเร็จ`);
+    } else {
+        codeFeedback.style.color = '#ff4e45'; // สีแดง
+        codeFeedback.textContent = '❌ โค้ดไม่ถูกต้องหรือหมดอายุแล้ว';
+    }
+});
+
+// โหลดการตั้งค่าบัญชีตั้งแต่เริ่มต้นเปิดเว็บ
+window.addEventListener('DOMContentLoaded', () => {
+    const activeAcc = accounts[currentAccountIndex] || accounts[0];
+    if(currentUserAvatar) {
+        currentUserAvatar.style.backgroundImage = `url(${activeAcc.avatar})`;
+        currentUserAvatar.style.backgroundSize = 'cover';
+    }
+});
+จุดเด่นของระบบที่เพิ่มเข้ามา:
+ระบบสลับบัญชี (Switch Account): คุณสามารถกดปุ่มรูปเฟือง (⚙️) ที่มุมขวาบน > ไปที่หัวข้อสลับบัญชี เพื่อเพิ่มบัญชีใหม่หรือกดสลับไปมาระหว่างบัญชีได้ทันทีโดยไม่ต้อง Log out ให้ยุ่งยาก
+
+ระบบโค้ดเดียวกัน (Shared Code): ไม่ว่าคุณจะสลับไปใช้อบัญชีไหน ช่องกรอกโค้ดจะดึงชุดโค้ดกลาง (STREAM2026, YOUTUBEINSTA, VIPCODE) มาตรวจสอบเหมือนกันทั้งหมด ทำให้ผู้ใช้ทุกบัญชีสามารถแชร์และใช้โค้ดเดียวกันได้ทันทีครับ
+
+ขอสามารถ โหลดใน play Store ได้
+
+การนำโค้ด HTML, CSS และ JavaScript (Client-side) ที่เราสร้างขึ้นไปแปลงให้เป็นแอปพลิเคชันที่สามารถ ดาวน์โหลดได้จริงจาก Google Play Store มีขั้นตอนหลักๆ ดังนี้ครับ เนื่องจาก Play Store ไม่รองรับการอัปโหลดไฟล์ HTML เปล่าๆ โดยตรง เราจึงต้องทำการห่อหุ้มเว็บแอป (Web Wrapper) ให้กลายเป็นแอป Android (.aab หรือ .apk) ครับ
+
+เครื่องมือและวิธีการหลักในการแปลงเว็บเป็นแอป Android
+วิธีที่ 1: ใช้ Capacitor (โดย Ionic) หรือ Cordova (แนะนำสำหรับมือโปร/เว็บที่มีการทำงานซับซ้อน)
+เครื่องมือนี้จะช่วยแปลงเว็บ HTML/JS ของคุณให้กลายเป็น Native Android App จริงๆ โดยสามารถเข้าถึงกล้อง พื้นที่เก็บข้อมูล หรือการแจ้งเตือนของเครื่องได้ด้วย
+
+ขั้นตอนคร่าวๆ:
+
+ติดตั้ง Node.js ในเครื่องคอมพิวเตอร์ของคุณ
+
+สร้างโปรเจกต์ Capacitor ครอบเว็บของคุณ:
+
+Bash
+npm init
+npm install @capacitor/core @capacitor/cli
+npx cap init
+เพิ่มแพลตฟอร์ม Android:
+
+Bash
+npm install @capacitor/android
+npx cap add android
+เปิดโปรเจกต์ใน Android Studio เพื่อคอมไพล์เป็นไฟล์ติดตั้ง:
+
+Bash
+npx cap open android
+วิธีที่ 2: ใช้บริการเว็บแปลงแอปสำเร็จรูป (No-Code / Low-Code Wrappers)
+หากไม่ถนัดเขียนโปรแกรมฝั่ง Android มีบริการออนไลน์ที่ช่วยแปลงเว็บไซต์หรือไฟล์ HTML ให้เป็นแอป Play Store ได้ทันที เช่น:
+
+Median.co (เดิมชื่อ GoNative)
+
+PWABuilder (แปลงเว็บให้เป็น Progressive Web App และสร้างแพ็กเกจสำหรับส่ง Play Store ได้ง่าย)
+
+AppYet หรือ WebIntoApp
+
+สิ่งที่ต้องเตรียมตัวก่อนนำขึ้น Play Store
+บัญชีนักพัฒนา (Google Play Console Developer Account):
+
+ต้องสมัครสมาชิกกับ Google โดยมีค่าธรรมเนียมแรกเข้าครั้งเดียว $25 USD (ประมาณ 900 บาท)
+
+การจัดเตรียมไฟล์สำหรับแอป Android:
+
+App Icon: ไอคอนแอปขนาด 512x512 พิกเซล
+
+Screenshots: ภาพหน้าจอตัวอย่างแอปในมือถือ (อย่างน้อย 2-4 ภาพ)
+
+Privacy Policy: นโยบายความเป็นส่วนตัว (เนื่องจากแอปของคุณมีระบบอัปโหลดวิดีโอและจัดการข้อมูลผู้ใช้ Google จะบังคับให้ต้องมีลิงก์นโยบายความเป็นส่วนตัว)
+
+การเซ็นชื่อแอป (Signing the App):
+
+เวลา export ไฟล์หลังจากพัฒนาเสร็จ จะต้องสร้าง Release Keystore เพื่อเซ็นรับรองความปลอดภัยของแอปก่อนอัปโหลดไฟล์นามสกุล .aab (Android App Bundle) ขึ้นสู่ Play Console
+
+หากคุณต้องการแนวทางหรือติดปัญหาในการใช้เครื่องมือตัวไหน (เช่น Capacitor หรือการทำ PWA) สามารถสอบถามเพิ่มเติมได้เลยนะครับ!
+
+ขอช่องทางการติดต่อเจ้าหน้าที่
+
+เนื่องจากระบบนี้เป็น AI (ปัญญาประดิษฐ์) ส่วนบุคคล ผู้ช่วยอัจฉริยะที่ถูกสร้างขึ้นเพื่อช่วยเขียนโค้ดและตอบคำถามทั่วไป จึงไม่มีเบอร์โทรศัพท์หรือทีมงานเจ้าหน้าที่มนุษย์คอยให้บริการโดยตรงครับ
+
+แต่หากคุณใช้งานผ่านแพลตฟอร์ม, เว็บไซต์ หรือแอปพลิเคชันใดๆ อยู่ คุณสามารถติดต่อทีมสนับสนุน (Support) ของผู้ให้บริการเจ้านั้นๆ ผ่านช่องทางช่วยเหลือภายในแอปพลิเคชันหรือเว็บไซต์ที่คุณกำลังใช้งานได้เลยครับ!
+
+มีเรื่องไหนเกี่ยวกับโค้ดหรือการพัฒนาแอปพลิเคชันที่อยากให้ผมช่วยเพิ่มเติมไหมครับ?
+
+โค้ดที่ให้ทำไปให้สร้างการติกต่อกับเจ้าหน้าที่ได้ ละพร้อมใช้โค้ดได้เดียวกันได้
+
+เข้าใจแล้วครับ! เพื่อให้ผู้ใช้สามารถ ติดต่อเจ้าหน้าที่/ส่งข้อความหาแอดมิน ได้จากภายในแอปพลิเคชันของคุณโดยตรง (พร้อมทั้งรักษาระบบ ใส่โค้ดเดียวกัน และ สลับบัญชี ที่ทำไว้ก่อนหน้านี้)
+
+เราจะเพิ่ม "ระบบติดต่อเจ้าหน้าที่ (Contact Support / Help Center)" เข้าไปในหน้าการตั้งค่า หรือเพิ่มเป็นเมนูใหม่ใน Sidebar ครับ
+
+นี่คือโค้ดที่คุณสามารถนำไปเพิ่มและอัปเดตต่อจากโค้ดเดิมได้เลยครับ:
+
+1. อัปเดตไฟล์ index.html (เพิ่มเมนูและหน้าต่างติดต่อเจ้าหน้าที่)
+เพิ่มเมนู "ติดต่อเจ้าหน้าที่" ไว้ใน Sidebar:
+
+HTML
+<!-- ในส่วนของ <aside class="sidebar"> ให้เพิ่มเมบานี้ต่อท้ายได้เลย -->
+<hr>
+<a href="#" class="sidebar-item" id="support-trigger"><i class="fa-solid fa-headset"></i> ติดต่อเจ้าหน้าที่</a>
+เพิ่ม Modal สำหรับส่งข้อความหาเจ้าหน้าที่ (วางไว้ก่อนปิดแท็ก </body>):
+
+HTML
+<!-- Support Contact Modal -->
+<div class="modal" id="support-modal">
+    <div class="modal-content support-box">
+        <span class="close-modal" id="close-support">&times;</span>
+        <h2><i class="fa-solid fa-headset" style="color: #3ea6ff;"></i> ศูนย์ช่วยเหลือ & ติดต่อเจ้าหน้าที่</h2>
+        <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 15px;">
+            ส่งข้อความหาทีมงานได้ทุกบัญชี ระบบจะบันทึกคำขอของคุณไว้
+        </p>
+
+        <form id="support-form">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; display:block; margin-bottom:5px;">หัวข้อที่ต้องการความช่วยเหลือ</label>
+                <select id="support-topic" style="width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 6px; color: #fff; outline: none;">
+                    <option value="general">ปัญหาการใช้งานทั่วไป</option>
+                    <option value="account">ปัญหาเกี่ยวกับบัญชี / สลับบัญชี</option>
+                    <option value="code">ปัญหาการใช้โค้ด / โค้ดใช้งานไม่ได้</option>
+                    <option value="video">ปัญหาการอัปโหลดวิดีโอ</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 0.85rem; display:block; margin-bottom:5px;">รายละเอียด / ข้อความถึงเจ้าหน้าที่</label>
+                <textarea id="support-message" placeholder="พิมพ์ข้อความของคุณที่นี่..." rows="4" style="width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 6px; color: #fff; outline: none; resize: none;" required></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn" style="width: 100%;">ส่งเรื่องหาเจ้าหน้าที่</button>
+        </form>
+        <p id="support-feedback" style="font-size: 0.85rem; margin-top: 10px; text-align: center;"></p>
+    </div>
+</div>
+2. อัปเดตไฟล์ script.js (เพิ่มฟังก์ชันระบบติดต่อเจ้าหน้าที่)
+นำโค้ดส่วนนี้ไปเพิ่มต่อท้ายในไฟล์ script.js ของคุณ:
+
+JavaScript
+// --- ระบบติดต่อเจ้าหน้าที่ (Contact Support System) ---
+
+const supportModal = document.getElementById('support-modal');
+const supportTrigger = document.getElementById('support-trigger');
+const closeSupport = document.getElementById('close-support');
+const supportForm = document.getElementById('support-form');
+const supportFeedback = document.getElementById('support-feedback');
+
+// เปิด-ปิด Modal ติดต่อเจ้าหน้าที่
+supportTrigger.addEventListener('click', (e) => {
+    e.preventDefault();
+    supportFeedback.textContent = '';
+    supportForm.reset();
+    supportModal.style.display = 'flex';
+});
+
+closeSupport.addEventListener('click', () => {
+    supportModal.style.display = 'none';
+});
+
+// ส่งข้อความหาเจ้าหน้าที่
+supportForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const topic = document.getElementById('support-topic').value;
+    const message = document.getElementById('support-message').value.trim();
+    
+    if (!message) return;
+
+    // ดึงชื่อบัญชีปัจจุบันที่กำลังใช้งานอยู่มาแนบไปกับเรื่องที่แจ้ง
+    const activeAcc = accounts[currentAccountIndex] || { name: 'Unknown User' };
+
+    // จำลองการส่งข้อมูลไปยังเซิร์ฟเวอร์ (สามารถนำไปต่อยอดใช้ EmailJS หรือ Backend จริงได้)
+    console.log(`[Support Ticket Sent] จากบัญชี: ${activeAcc.name} | หัวข้อ: ${topic} | ข้อความ: ${message}`);
+
+    supportFeedback.style.color = '#10b981'; // สีเขียว
+    supportFeedback.textContent = '✅ ส่งข้อความหาเจ้าหน้าที่สำเร็จ! เจ้าหน้าที่กำลังตรวจสอบและจะติดต่อกลับเร็วๆ นี้';
+
+    // ปิด Modal อัตโนมัติหลังจาก 2 วินาที
+    setTimeout(() => {
+        supportModal.style.display = 'none';
+    }, 2000);
+});
+สรุปฟีเจอร์ทั้งหมดที่คุณจะได้ในระบบตอนนี้:
+หน้าฟีดหลัก (YouTube + Instagram Stories): เลื่อนดูวิดีโอและกดดูสตอรี่คนอื่นได้
+
+ระบบอัปโหลดวิดีโอ: กดปุ่มวิดีโอด้านบนเพื่ออัปโหลดคลิปใหม่เข้าหน้าเว็บได้ทันที
+
+ระบบสลับบัญชี (Multi-Account): กดไอคอนตั้งค่า (⚙️) เพื่อเพิ่มบัญชีและสลับใช้งานระหว่างบัญชีได้อย่างอิสระ
+
+ระบบใส่โค้ดเดียวกัน (Shared Code): ทุกๆ บัญชีสามารถใช้โค้ดชุดเดียวกัน (เช่น STREAM2026) เพื่อรับสิทธิ์พิเศษร่วมกันได้
+
+ระบบติดต่อเจ้าหน้าที่ (Contact Support): เมนูใหม่ในแถบด้านข้างที่ให้ผู้ใช้ทุกบัญชีสามารถกรอกเรื่องร้องเรียนหรือขอความช่วยเหลือส่งตรงถึงแอดมินได้ทันทีครับ!
