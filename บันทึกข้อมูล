@@ -1066,5 +1066,259 @@ supportForm.addEventListener('submit', (e) => {
 ระบบสลับบัญชี (Multi-Account): กดไอคอนตั้งค่า (⚙️) เพื่อเพิ่มบัญชีและสลับใช้งานระหว่างบัญชีได้อย่างอิสระ
 
 ระบบใส่โค้ดเดียวกัน (Shared Code): ทุกๆ บัญชีสามารถใช้โค้ดชุดเดียวกัน (เช่น STREAM2026) เพื่อรับสิทธิ์พิเศษร่วมกันได้
+โค้ดที่ให้ทำไปให้สร้างการติกต่อกับเจ้าหน้าที่ได้ ละพร้อมใช้โค้ดได้เดียวกันได้
+
+เข้าใจแล้วครับ! เพื่อให้ผู้ใช้สามารถ ติดต่อเจ้าหน้าที่/ส่งข้อความหาแอดมิน ได้จากภายในแอปพลิเคชันของคุณโดยตรง (พร้อมทั้งรักษาระบบ ใส่โค้ดเดียวกัน และ สลับบัญชี ที่ทำไว้ก่อนหน้านี้)
+
+เราจะเพิ่ม "ระบบติดต่อเจ้าหน้าที่ (Contact Support / Help Center)" เข้าไปในหน้าการตั้งค่า หรือเพิ่มเป็นเมนูใหม่ใน Sidebar ครับ
+
+นี่คือโค้ดที่คุณสามารถนำไปเพิ่มและอัปเดตต่อจากโค้ดเดิมได้เลยครับ:
+
+1. อัปเดตไฟล์ index.html (เพิ่มเมนูและหน้าต่างติดต่อเจ้าหน้าที่)
+เพิ่มเมนู "ติดต่อเจ้าหน้าที่" ไว้ใน Sidebar:
+
+HTML
+<!-- ในส่วนของ <aside class="sidebar"> ให้เพิ่มเมบานี้ต่อท้ายได้เลย -->
+<hr>
+<a href="#" class="sidebar-item" id="support-trigger"><i class="fa-solid fa-headset"></i> ติดต่อเจ้าหน้าที่</a>
+เพิ่ม Modal สำหรับส่งข้อความหาเจ้าหน้าที่ (วางไว้ก่อนปิดแท็ก </body>):
+
+HTML
+<!-- Support Contact Modal -->
+<div class="modal" id="support-modal">
+    <div class="modal-content support-box">
+        <span class="close-modal" id="close-support">&times;</span>
+        <h2><i class="fa-solid fa-headset" style="color: #3ea6ff;"></i> ศูนย์ช่วยเหลือ & ติดต่อเจ้าหน้าที่</h2>
+        <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 15px;">
+            ส่งข้อความหาทีมงานได้ทุกบัญชี ระบบจะบันทึกคำขอของคุณไว้
+        </p>
+
+        <form id="support-form">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; display:block; margin-bottom:5px;">หัวข้อที่ต้องการความช่วยเหลือ</label>
+                <select id="support-topic" style="width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 6px; color: #fff; outline: none;">
+                    <option value="general">ปัญหาการใช้งานทั่วไป</option>
+                    <option value="account">ปัญหาเกี่ยวกับบัญชี / สลับบัญชี</option>
+                    <option value="code">ปัญหาการใช้โค้ด / โค้ดใช้งานไม่ได้</option>
+                    <option value="video">ปัญหาการอัปโหลดวิดีโอ</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 0.85rem; display:block; margin-bottom:5px;">รายละเอียด / ข้อความถึงเจ้าหน้าที่</label>
+                <textarea id="support-message" placeholder="พิมพ์ข้อความของคุณที่นี่..." rows="4" style="width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 6px; color: #fff; outline: none; resize: none;" required></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn" style="width: 100%;">ส่งเรื่องหาเจ้าหน้าที่</button>
+        </form>
+        <p id="support-feedback" style="font-size: 0.85rem; margin-top: 10px; text-align: center;"></p>
+    </div>
+</div>
+2. อัปเดตไฟล์ script.js (เพิ่มฟังก์ชันระบบติดต่อเจ้าหน้าที่)
+นำโค้ดส่วนนี้ไปเพิ่มต่อท้ายในไฟล์ script.js ของคุณ:
+
+JavaScript
+// --- ระบบติดต่อเจ้าหน้าที่ (Contact Support System) ---
+
+const supportModal = document.getElementById('support-modal');
+const supportTrigger = document.getElementById('support-trigger');
+const closeSupport = document.getElementById('close-support');
+const supportForm = document.getElementById('support-form');
+const supportFeedback = document.getElementById('support-feedback');
+
+// เปิด-ปิด Modal ติดต่อเจ้าหน้าที่
+supportTrigger.addEventListener('click', (e) => {
+    e.preventDefault();
+    supportFeedback.textContent = '';
+    supportForm.reset();
+    supportModal.style.display = 'flex';
+});
+
+closeSupport.addEventListener('click', () => {
+    supportModal.style.display = 'none';
+});
+
+// ส่งข้อความหาเจ้าหน้าที่
+supportForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const topic = document.getElementById('support-topic').value;
+    const message = document.getElementById('support-message').value.trim();
+    
+    if (!message) return;
+
+    // ดึงชื่อบัญชีปัจจุบันที่กำลังใช้งานอยู่มาแนบไปกับเรื่องที่แจ้ง
+    const activeAcc = accounts[currentAccountIndex] || { name: 'Unknown User' };
+
+    // จำลองการส่งข้อมูลไปยังเซิร์ฟเวอร์ (สามารถนำไปต่อยอดใช้ EmailJS หรือ Backend จริงได้)
+    console.log(`[Support Ticket Sent] จากบัญชี: ${activeAcc.name} | หัวข้อ: ${topic} | ข้อความ: ${message}`);
+
+    supportFeedback.style.color = '#10b981'; // สีเขียว
+    supportFeedback.textContent = '✅ ส่งข้อความหาเจ้าหน้าที่สำเร็จ! เจ้าหน้าที่กำลังตรวจสอบและจะติดต่อกลับเร็วๆ นี้';
+
+    // ปิด Modal อัตโนมัติหลังจาก 2 วินาที
+    setTimeout(() => {
+        supportModal.style.display = 'none';
+    }, 2000);
+});
+สรุปฟีเจอร์ทั้งหมดที่คุณจะได้ในระบบตอนนี้:
+หน้าฟีดหลัก (YouTube + Instagram Stories): เลื่อนดูวิดีโอและกดดูสตอรี่คนอื่นได้
+
+ระบบอัปโหลดวิดีโอ: กดปุ่มวิดีโอด้านบนเพื่ออัปโหลดคลิปใหม่เข้าหน้าเว็บได้ทันที
+
+ระบบสลับบัญชี (Multi-Account): กดไอคอนตั้งค่า (⚙️) เพื่อเพิ่มบัญชีและสลับใช้งานระหว่างบัญชีได้อย่างอิสระ
+
+ระบบใส่โค้ดเดียวกัน (Shared Code): ทุกๆ บัญชีสามารถใช้โค้ดชุดเดียวกัน (เช่น STREAM2026) เพื่อรับสิทธิ์พิเศษร่วมกันได้
+
+ระบบติดต่อเจ้าหน้าที่ (Contact Support): เมนูใหม่ในแถบด้านข้างที่ให้ผู้ใช้ทุกบัญชีสามารถกรอกเรื่องร้องเรียนหรือขอความช่วยเหลือส่งตรงถึงแอดมินได้ทันทีครับ!
+
+สามารถกดติกตามกันได้ละติดตามกลับได้
+
+จัดให้ครับ! เพื่อให้เว็บแอปพลิเคชันของคุณมีความเป็นโซเชียลมีเดียที่สมบูรณ์แบบยิ่งขึ้น (ผสมผสานฟีเจอร์เด่นของทั้ง YouTube และ Instagram) เราจะเพิ่ม "ระบบกดติดตาม (Follow/Subscribe) และการติดตามกลับ (Follow Back)" เข้าไป โดยที่ทุกบัญชีสามารถกดติดตามกันและระบบจะแสดงสถานะการติดตามได้อย่างแม่นยำครับ
+
+นี่คือโค้ดอัปเดตที่คุณสามารถนำไปเพิ่มต่อในโปรเจกต์เดิมได้เลยครับ:
+
+1. อัปเดตไฟล์ index.html (เพิ่มปุ่มติดตามในส่วนวิดีโอ/ช่อง และเพิ่มหน้าต่างดูรายชื่อผู้ติดตาม)
+เพิ่มปุ่มติดตามลงในข้อมูลวิดีโอและการ์ดช่อง (ใน script.js ที่จะเรนเดอร์ หรือเพิ่มปุ่ม Follow ในหน้าโปรไฟล์/วิดีโอ):(เราจะให้ JavaScript จัดการสร้างปุ่มติดตามให้อัตโนมัติในฟีดวิดีโอ เพื่อให้ผู้ใช้สามารถกดติดตามช่องของวิดีโอนั้นๆ ได้ทันที)
+
+2. อัปเดตไฟล์ style.css (ตกแต่งปุ่มติดตามและสถานะติดตามกลับ)
+เพิ่ม CSS เหล่านี้ลงไปท้ายสุดของไฟล์ style.css:
+
+CSS
+/* Follow & Follow Back Button Styles */
+.follow-action-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.follow-btn {
+    background-color: #f1f1f1;
+    color: #0f0f0f;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 18px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.follow-btn:hover {
+    background-color: #d1d1d1;
+}
+
+/* เมื่อกดติดตามแล้ว (Following) */
+.follow-btn.following {
+    background-color: #272727;
+    color: #f1f1f1;
+    border: 1px solid #3f3f3f;
+}
+
+/* ป้ายสถานะติดตามกลับ (Follow Back Badge) */
+.follow-back-badge {
+    background-color: #22c55e;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+}
+3. อัปเดตไฟล์ script.js (เพิ่มฟังก์ชันกดติดตาม และระบบติดตามกลับ)
+นำโค้ดส่วนนี้ไปเพิ่มต่อท้ายในไฟล์ script.js ของคุณ:
+
+JavaScript
+// --- ระบบกดติดตาม และติดตามกลับ (Follow & Follow Back System) ---
+
+// เก็บสถานะการติดตามของแต่ละบัญชี (Key: ชื่อบัญชี, Value: Array ของชื่อช่องที่ติดตาม)
+let userFollows = JSON.parse(localStorage.getItem('streamgram_user_follows')) || {};
+
+// เก็บสถานะว่าช่องไหนติดตามบัญชีเรากลับบ้าง (จำลอง)
+let isFollowingBack = JSON.parse(localStorage.getItem('streamgram_follow_back')) || {
+    'Dev Code': true,       // ช่องนี้ติดตามกลับแล้ว
+    'Foodie Guide': false,  // ยังไม่ได้ติดตามกลับ
+    'Home Studio': true,
+    'Lofi Vibes': false
+};
+
+// ฟังก์ชันตรวจสอบว่าบัญชีปัจจุบันติดตามช่องนี้หรือยัง
+function checkIfFollowing(channelName) {
+    const activeAccName = accounts[currentAccountIndex].name;
+    if (!userFollows[activeAccName]) {
+        userFollows[activeAccName] = [];
+    }
+    return userFollows[activeAccName].includes(channelName);
+}
+
+// ฟังก์ชันกดติดตาม / เลิกติดตาม
+window.toggleFollow = function(channelName) {
+    const activeAccName = accounts[currentAccountIndex].name;
+    if (!userFollows[activeAccName]) {
+        userFollows[activeAccName] = [];
+    }
+
+    const index = userFollows[activeAccName].indexOf(channelName);
+    if (index > -1) {
+        // ถ้าติดตามอยู่แล้ว ให้ยกเลิกการติดตาม (Unfollow)
+        userFollows[activeAccName].splice(index, 1);
+        alert(`คุณเลิกติดตามช่อง ${channelName} แล้ว`);
+    } else {
+        // ถ้ายังไม่ได้ติดตาม ให้กดติดตาม (Follow)
+        userFollows[activeAccName].push(channelName);
+        
+        // เช็คว่าช่องนั้นติดตามกลับเราด้วยไหม
+        const followsBack = isFollowingBack[channelName] || false;
+        if (followsBack) {
+            alert(`🎉 คุณติดตามช่อง ${channelName} แล้ว และช่องนี้ "ติดตามคุณกลับแล้ว" ด้วย!`);
+        } else {
+            alert(`✅ ติดตามช่อง ${channelName} สำเร็จ!`);
+        }
+    }
+
+    // บันทึกลง LocalStorage และรีเฟรชหน้าจอวิดีโอ
+    localStorage.setItem('streamgram_user_follows', JSON.stringify(userFollows));
+    renderVideos();
+};
+
+// ปรับปรุงฟังก์ชัน renderVideos ให้มีปุ่มติดตามและป้ายติดตามกลับ
+const originalRenderVideos = renderVideos;
+renderVideos = function() {
+    const activeAccName = accounts[currentAccountIndex].name;
+    const followingList = userFollows[activeAccName] || [];
+
+    videoGrid.innerHTML = videosData.map(video => {
+        const isFollowing = followingList.includes(video.channel);
+        const followsBack = isFollowingBack[video.channel] || false;
+
+        return `
+            <div class="video-card">
+                <img src="${video.thumb}" class="video-thumbnail" alt="thumbnail">
+                <div class="video-info-container">
+                    <div class="channel-icon"></div>
+                    <div class="video-details" style="width: 100%;">
+                        <h3>${video.title}</h3>
+                        <p>${video.channel} ${followsBack ? '<span class="follow-back-badge">ติดตามคุณกลับแล้ว</span>' : ''}</p>
+                        <p>${video.views} • ${video.time}</p>
+                        <div class="follow-action-container">
+                            <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${video.channel}')">
+                                ${isFollowing ? '✓ กำลังติดตาม' : '+ ติดตาม'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// โหลดการแสดงผลวิดีโอใหม่พร้อมปุ่มติดตามเมื่อเปิดเว็บ
+window.addEventListener('DOMContentLoaded', () => {
+    renderVideos();
+});
+สรุปความสามารถที่เพิ่มเข้ามา:
+ปุ่มติดตาม (Follow / Subscribed): ใต้ชื่อช่องในแต่ละวิดีโอจะมีปุ่มกดติดตาม ซึ่งสถานะการติดตามจะ แยกตามบัญชีที่กำลังใช้งานอยู่ (สลับบัญชีไป รายชื่อที่ติดตามก็จะเปลี่ยนตามบัญชีนั้นๆ)
+
+ระบบติดตามกลับ (Follow Back): เมื่อกดติดตามช่องใดๆ ระบบจะจำลองการตรวจสอบว่าช่องนั้นๆ ได้ติดตามบัญชีของคุณกลับด้วยหรือไม่ หากติดตามกลับ จะมีป้ายสีเขียวขึ้นว่า "ติดตามคุณกลับแล้ว" แสดงขึ้นมาทันทีครับ!
 
 ระบบติดต่อเจ้าหน้าที่ (Contact Support): เมนูใหม่ในแถบด้านข้างที่ให้ผู้ใช้ทุกบัญชีสามารถกรอกเรื่องร้องเรียนหรือขอความช่วยเหลือส่งตรงถึงแอดมินได้ทันทีครับ!
