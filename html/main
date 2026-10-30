@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Clone - หน้าแรก</title>
+    <!-- เชื่อมโยงไฟล์ CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- ไอคอนจาก FontAwesome (สำหรับไอคอนรูปกระดิ่ง, ค้นหา, ฯลฯ) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- --- HEADER (แถบด้านบนสุด) --- -->
+    <header class="header">
+        <div class="header-left">
+            <button id="menu-toggle" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo">
+                <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 28px;"></i>
+                <span>MyTube</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="search-box">
+                <input type="text" placeholder="ค้นหา">
+                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <button class="icon-btn mic-btn"><i class="fa-solid fa-microphone"></i></button>
+        </div>
+
+        <div class="header-right">
+            <button class="icon-btn"><i class="fa-solid fa-video"></i></button>
+            <button class="icon-btn"><i class="fa-solid fa-bell"></i></button>
+            <div class="profile-pic"></div>
+        </div>
+    </header>
+
+    <!-- --- MAIN CONTAINER (ส่วนเนื้อหาหลักและแถบข้าง) --- -->
+    <div class="main-container">
+        
+        <!-- SIDEBAR (แถบเมนูด้านข้าง) -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><i class="fa-solid fa-house"></i><span>หน้าแรก</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-bolt"></i><span>Shorts</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-clapperboard"></i><span>การติดตาม</span></a></li>
+                <hr>
+                <li><a href="#"><i class="fa-solid fa-user"></i><span>คุณ</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-clock-rotate-left"></i><span>ประวัติการเข้าชม</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-play"></i><span>วิดีโอของคุณ</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-clock"></i><span>ดูภายหลัง</span></a></li>
+                <li><a href="#"><i class="fa-solid fa-thumbs-up"></i><span>วิดีโอที่ชอบ</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- CONTENT AREA (พื้นที่แสดงวิดีโอ) -->
+        <main class="content-area">
+            
+            <!-- Tags หมวดหมู่ด้านบน -->
+            <div class="filter-tags">
+                <button class="tag active">ทั้งหมด</button>
+                <button class="tag">เกม</button>
+                <button class="tag">เพลง</button>
+                <button class="tag">การเขียนโปรแกรม</button>
+                <button class="tag">ไลฟ์สไตล์</button>
+                <button class="tag">การทำอาหาร</button>
+                <button class="tag">เทคโนโลยี</button>
+            </div>
+
+            <!-- Grid แสดงรายการวิดีโอ -->
+            <div class="video-grid">
+                
+                <!-- Video Card 1 -->
+                <div class="video-card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=500&auto=format&fit=crop&q=60" alt="Thumbnail">
+                        <span class="duration">12:45</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-avatar"></div>
+                        <div class="video-details">
+                            <h3 class="video-title">สอนสร้างเว็บไซต์ด้วย HTML & CSS ฉบับสมบูรณ์สำหรับผู้เริ่มต้น 2026</h3>
+                            <p class="channel-name">Dev Channel</p>
+                            <p class="video-stats">1.2 แสน วิทยา • 2 วันที่แล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 2 -->
+                <div class="video-card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=60" alt="Thumbnail">
+                        <span class="duration">24:10</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-avatar"></div>
+                        <div class="video-details">
+                            <h3 class="video-title">รีวิวเขียนโค้ดวันเดียวจบ ได้เว็บแอปพลิเคชันใช้งานจริง!</h3>
+                            <p class="channel-name">Code Master</p>
+                            <p class="video-stats">4.5 หมื่น วิทยา • 1 สัปดาห์ที่แล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 3 -->
+                <div class="video-card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&auto=format&fit=crop&q=60" alt="Thumbnail">
+                        <span class="duration">08:30</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-avatar"></div>
+                        <div class="video-details">
+                            <h3 class="video-title">10 เทคนิคจัดระเบียบโค้ดให้โปรแกรมเมอร์ทำงานง่ายขึ้น</h3>
+                            <p class="channel-name">Tech Tips</p>
+                            <p class="video-stats">8.9 หมื่น วิทยา • 3 วันที่แล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Card 4 -->
+                <div class="video-card">
+                    <div class="thumbnail">
+                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&auto=format&fit=crop&q=60" alt="Thumbnail">
+                        <span class="duration">15:00</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-avatar"></div>
+                        <div class="video-details">
+                            <h3 class="video-title">จัดโต๊ะทำงานโปรแกรมเมอร์สายมินิมอล งบประหยัด</h3>
+                            <p class="channel-name">Workspace Vibe</p>
+                            <p class="video-stats">2.1 แสน วิทยา • 1 เดือนที่แล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- เชื่อมโยงไฟล์ JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
